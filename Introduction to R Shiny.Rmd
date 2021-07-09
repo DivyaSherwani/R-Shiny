@@ -1,0 +1,156 @@
+---
+title: "Shiny package in R"
+author: "Kamal Dobriyal"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+geometry: left=1cm,right=1cm,top=0cm,bottom=0cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, results = F)
+```
+
+# Template for Shiny App
+
+```{r results=F}
+# install.packages("shiny") - installing the shiny package
+
+ library(shiny) #- loading the shiny package
+
+ myUI<-fluidPage() #- all the input and output elements are being
+                      #placed inside fluidPage() function
+
+ myServer<-function(input,output){} #- the R code/script is being placed placed inside
+                           #myServer() function to control elements of UI
+
+ shinyApp(ui=myUI, server = myServer) #- shinyApp() function launches the app locally
+```
+
+# Input elements inside fluidPage() function
+
+## Input elements syntax
+
+![Input Elements Syntax](Screenshots/inputElementSyntax.png){width="700px"}
+
+```{r results=F}
+ myUI<-fluidPage(
+ sliderInput(inputId="num",label="Select a number", value=25, min=1, max=100),
+ selectInput(inputId="languages", label="Select a language", c("R","Python","Java","C++")))
+```
+## Input elements in Shiny
+
+![Input Elements](Screenshots/inputElements.png){width="600px"}
+
+# Output elements inside  fluidPage() function
+## Output elements syntax
+![Output Elements Syntax](Screenshots/outputElementSyntax.png){width=600px}
+```{r results=F}
+ myUI<-fluidPage(
+ plotOutput("hist")
+ )
+```
+## Output elements in Shiny
+![Output Elements](Screenshots/outputElements.png){width=600px}
+
+# Combining Input and Output elements
+```{r results=F}
+
+ myUI<-fluidPage(
+ sliderInput(inputId="num",label="Select a number", value=25, min=1, max=100),
+ selectInput(inputId="languages", label="Select a language", c("R","Python","Java","C++")),
+ plotOutput("hist"))
+
+ myServer<-function(input,output){}
+```
+# Server assembling Inputs and Output
+
+## Rendering functions in Shiny  
+![Rendering Functions](Screenshots/renderFunctions.png){width="600px"}  
+<br/>  
+
+## Render functions syntax  (output$)
+![Rendering Functions](Screenshots/renderSyntax.png){width="600px"}
+
+```{r results=F}
+ myServer<-function(input,output){
+ output$hist<-renderPlot({
+              hist(rnorm(100),main = "Plot Title")
+     })
+}
+```
+# \
+# Reactive Objects in Shiny
+
+## Using Input Values (input$)
+```{r results=F}
+ myServer<-function(input,output){
+ output$hist<-renderPlot({
+              set.seed(1)
+              hist(rnorm(input$num),main = "Plot Title")
+     })
+}
+```
+
+# Sharing Shiny App
+# Shinyapps.io
+A server maintained by RStudio which is:  
+- **free**  
+- **easy to use**  
+- **secure**  
+- **scalable**  
+
+## Steps to deploy Shiny App
+```{r results=F}
+#install.packages("rsconnect")
+#library(rsconnect)
+#deployApp('path/to/your/app')
+```
+
+# Reactive values
+![Use of reactive values](Screenshots/reactiveValues1.png){width="600px"}
+![List of inputs](Screenshots/reactiveValues2.png)
+![Wokring of reactive values](Screenshots/reactiveValues3.png)
+Reactive values only work with reactive function and cannot call a reactive value
+from outside of one.
+
+![Input and Output relation](Screenshots/reactiveValues4.png)
+```{r}
+library(shiny)
+ui<-fluidPage(
+  numericInput("num","Enter a number",value =1,min=1,max=100),
+  textOutput("square"),
+  textOutput("sqRoot")
+)
+server<-function(input,output){
+  output$square<-renderText({(input$num)^2})
+  output$sqRoot<-renderText({sqrt(input$num)})
+}
+shinyApp(ui,server)
+```
+#reactive()
+![reactive()](Screenshots/reactive.png)
+**We can use reactive expressions as functions** and **Reactive expressions cache their value**
+```{r}
+library(shiny)
+ui<-fluidPage(
+  numericInput("num","Enter a number",value =1,min=1,max=100),
+  textOutput("square"),
+  textOutput("sqRoot")
+)
+server<-function(input,output){
+  data<-reactive({input$num})
+  output$square<-renderText({(data())^2})
+  output$sqRoot<-renderText({sqrt(data())})
+}
+shinyApp(ui,server)
+```
+
+
+
+
+
+
+
+
