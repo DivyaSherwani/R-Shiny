@@ -1,0 +1,138 @@
+---
+title: "Reactive, Isolate and Observe"
+author: "Divya Sherwani"
+date: "July 14, 2021"
+output: word_document
+---
+
+```{r}
+library(shiny)
+```
+
+## Render function example
+
+There are two inputs (number and text) and one output (histrogram with title).
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId='num',
+              label='Choose a number',
+              value=25,min=1,max=100),
+  textInput(inputId = 'title',
+            label='Write a title',
+            value = 'Histogram of random values'),
+  plotOutput("hist")
+)
+
+server <- function(input, output, session) {
+  output$hist<-renderPlot({
+    hist(rnorm(input$num),main=input$title)
+  })
+  
+}
+```
+
+## Reactive Value code
+
+There is one input (value) and one output (histogram).
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId='num',
+              label='Choose a number',
+              value=25,min=1,max=100),
+  plotOutput("hist")
+)
+
+server <- function(input, output, session) {
+  output$hist<-renderPlot({hist(rnorm(input$num))})
+  
+}
+```
+
+
+## Single reactive value to update 2 functions
+
+There is one input (number) and two outputs (histrogram and summary statistics).
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId='num',
+              label='Choose a number',
+              value=25,min=1,max=100),
+  plotOutput("hist"),
+  verbatimTextOutput("stats")
+)
+
+server <- function(input, output) {
+  output$hist<-renderPlot({
+    hist(rnorm(input$num))
+  })
+  output$stats<-renderPrint({
+    summary(rnorm(input$num))
+  })
+  
+}
+```
+
+## Reactive expression
+
+When there is one input and multiple outputs, instead of specifying the input every time, we can specify the input in the reactive function.
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId='num',
+              label='Choose a number',
+              value=25,min=1,max=100),
+  plotOutput("hist"),
+  verbatimTextOutput("stats")
+)
+
+server <- function(input, output) {
+  data<-reactive({rnorm(input$num)})
+  output$hist<-renderPlot({hist(data())})
+  output$stats<-renderPrint({summary(data())})
+  
+}
+```
+
+## Isolate function
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId='num',
+              label='Choose a number',
+              value=25,min=1,max=100),
+  textInput(inputId = 'title',
+            label='Write a title',
+            value = 'Histogram of random values'),
+  plotOutput("hist")
+)
+
+server <- function(input, output, session) {
+  output$hist<-renderPlot({
+    hist(rnorm(input$num),main=isolate(input$title))
+  })
+  
+}
+```
+
+
+## Action button : Observe function
+
+In order to perform any operation and not show the user, the observe evenet function can be used.
+
+```{r}
+ui <- fluidPage(
+  actionButton(inputId = "clicks",
+               label = "Click Me")
+)
+
+server <- function(input, output, session) {
+  observeEvent(input$clicks,{print(as.numeric(input$clicks))})
+  
+}
+
+```
+
+
